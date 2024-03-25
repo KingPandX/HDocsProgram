@@ -1,0 +1,265 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
+
+body {
+  font-family: "Manrope", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* Editor (css y html) */
+.DownToolBox{
+  display: flex;
+  flex-direction: column;
+  width: calc(100vw - 20px);
+  position: absolute;
+  bottom: 0;
+}
+
+.DownToolBox > div{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0;
+}
+
+.EditorOpen{
+  height: 45vh;
+}
+
+.EditorClose{
+  height: 0;
+}
+
+#ContainerEditor{
+  display: flex;
+  flex-direction: row;
+  transition: all 0.3s;
+  background-color: #252525;
+}
+
+#ContainerEditor > div{
+  width: 50%;
+  height: 100%;
+}
+
+#HTMLButton{
+  background-color: white;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  height: 20px;
+  z-index: 1;
+}
+
+#HTMLButton:hover{
+  background-color: #e9e9e9;
+}
+
+/* Herramientas */
+
+.ToolBox{
+  display:  flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 10px;
+
+  height: 50px;
+  width: calc(100vw - 20px);
+}
+
+/* Herramientas de guardado */
+
+.SaveTool{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.SaveTool > input{
+  width: 75%;
+  padding-inline: 10px;
+  padding: 0px 10px;
+  height: 30px;
+  border: none;
+  outline: none;
+  border-radius: 3px;
+  font-size: 12pt;
+  font-weight: 500;
+}
+
+.SaveTool > input:hover{
+  outline: 1px solid #c7c7c7;
+  width: fit-content;
+}
+
+.SaveTool > input::placeholder{
+  color: #c7c7c7;
+}
+
+.SaveTool > input:focus{
+  color: #969696;
+  width: fit-content;
+}
+
+.SaveButtons{
+  display: flex;
+  flex-direction: row;
+}
+
+.SaveButtons > button{
+  background-color: transparent;
+  width: fit-content;
+  margin: 0;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  padding-inline: 10px;
+  transition: all 0.3s;
+}
+
+.SaveButtons > button:hover{
+  background-color: #e9e9e9;
+  border-radius: 3px;
+}
+
+/* Herramientas para agregar paginas */
+
+.AddPageTool{
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: center;
+  align-items: center;
+}
+
+.AddPageTool > button {
+  padding: 0px 10px;
+  background: transparent;
+  border: none;
+  outline: none;
+  transition: all 0.3s;
+  margin-top: 10px;
+}
+
+.AddPageTool > button:hover{
+  background-color: #e9e9e9;
+  border-radius: 3px;
+}
+
+.TemplateSelect > select{
+  padding: 0px 10px;
+  background: transparent;
+  border: none;
+  outline: none;
+  transition: all 0.3s;
+  margin-top: 10px;
+}
+
+#pages{
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  align-items: center;
+  width: calc(100vw - 20px);
+  height: calc(100vh - 70px);
+  outline: solid 1px #e9e9e9;
+  overflow-y: scroll;
+
+  /*Scroll style*/
+  scrollbar-width: thin;
+}
+
+/*Estilos de las paginas*/
+
+.page{
+  margin-bottom: 7px;
+  position: relative;
+  border: solid 1px #e9e9e9;
+  transition: all 0.3s;
+}
+
+.page:first-child{
+  margin-top: 20px;
+}
+
+.page:last-child{
+  margin-bottom: 100px;
+}
+
+.Content{
+  word-wrap: break-word;
+  overflow-y: hidden;
+}
+
+.Pactive{
+  outline: rgb(114, 36, 170) solid 1px;
+  box-shadow: rgba(240, 46, 170, 0.4) 0px 5px, rgba(240, 46, 170, 0.3) 0px 10px, rgba(240, 46, 170, 0.2) 0px 15px, rgba(240, 46, 170, 0.1) 0px 20px, rgba(240, 46, 170, 0.05) 0px 25px;
+  margin-top: 35px;
+  margin-bottom: 35px;
+}
+
+/* In page tools */
+#InPageTool{
+  position: absolute;
+  left: -60px;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  width: 50px;
+  animation: fadeIn 0.3s ease-in-out, Float 5s infinite;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    box-shadow: 0px 0px 0px 0px rgba(240, 46, 170, 0.4);
+  }
+  to {
+    opacity: 1;
+    box-shadow: rgba(240, 46, 170, 0.4) 0px 5px, rgba(240, 46, 170, 0.3) 0px 10px, rgba(240, 46, 170, 0.2) 0px 15px, rgba(240, 46, 170, 0.1) 0px 20px, rgba(240, 46, 170, 0.05) 0px 25px;
+  }
+}
+
+@keyframes Float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(5px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+#InPageTool > a{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-bottom: 30px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: solid 1px rgba(240, 46, 170, 0.4);
+  box-shadow: rgba(240, 46, 170, 0.4) 0px 5px, rgba(240, 46, 170, 0.3) 0px 10px, rgba(240, 46, 170, 0.2) 0px 15px, rgba(240, 46, 170, 0.1) 0px 20px, rgba(240, 46, 170, 0.05) 0px 25px;
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 200;
+  color: rgb(51, 51, 51);
+}
+
+#InPageTool > a:hover{
+  background-color: #e9e9e9;
+  transform: scale(1.1);
+}

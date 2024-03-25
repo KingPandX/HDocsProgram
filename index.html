@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hello World!</title>
+    <link rel="stylesheet" href="https://unpkg.com/@blaze/css@x.x.x/dist/blaze/blaze.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  </head>
+  <body>
+    <nav class="ToolBox">
+      <div class="SaveTool">
+        <input type="text" id="DocName" placeholder="Documento sin titulo">
+        <div class="SaveButtons">
+          <button id="SaveButton" class="c-tooltip c-tooltip--right" aria-label="Guarda el documento">Guardar</button>
+          <button id="SaveAsButton" class="c-tooltip c-tooltip--bottom" aria-label="Guardar el documento como">Guardar como</button>
+          <button id="LoadButton" class="c-tooltip c-tooltip--bottom" aria-label="Cargar un documento">Cargar</button>
+        </div>
+      </div>
+      <div class="AddPageTool">
+        <button id="AddPageButton">Agregar pagina</button>
+        <div class="TemplateSelect">
+          <label for="PageOption">Plantilla:</label>
+          <select id="TemplateSelector" name="PageOption">
+            <option value="-1">Ninguna</option>
+            <option value="0">Pagina con titulo</option>
+            <option value="1">Pagina con titulo y subtitulo</option>
+          </select>
+        </div>
+      </div>
+    </nav>
+
+    <style id="CSSContent">
+      :root{
+        --PH: 29.7cm;
+        --PW: 21cm;
+
+        --ML: 1cm;
+        --MT: 1cm;
+        --MR: 1cm;
+        --MB: 1cm;
+    }
+
+      .page {
+        min-width: var(--PW);
+        min-height: var(--PH);
+        max-width: var(--PW);
+        max-height: var(--PH);
+        background-color: white;
+      }
+      
+      .Content{
+        width: calc(var(--PW) - var(--ML) - var(--MR));
+        height: calc(var(--PH) - var(--MT) - var(--MB));
+        margin-left: var(--ML);
+        margin-top: var(--MT);
+      }
+    </style>
+    <div id="pages">
+    
+    </div>
+    </div>
+
+    <div class="DownToolBox">
+      <button id="HTMLButton" class="c-tooltip c-tooltip--top" aria-label="Ver el codigo HTML">HTML</button>
+      <div id="ContainerEditor" class="EditorClose">
+        <div id="HTMLEditor"></div>
+        <div id="CSSEditor"></div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/renderer.ts"></script>
+    <script type="module" src="https://unpkg.com/@blaze/atoms@x.x.x/dist/blaze-atoms/blaze-atoms.esm.js"></script>
+  </body>
+</html>
