@@ -163,6 +163,7 @@ body {
 
 #pages{
   display: flex;
+  position: relative;
   flex-direction: column;
   align-self: center;
   align-items: center;
@@ -195,6 +196,7 @@ body {
 .Content{
   word-wrap: break-word;
   overflow-y: hidden;
+  overflow-x: hidden;
 }
 
 .Pactive{
@@ -262,4 +264,68 @@ body {
 #InPageTool > a:hover{
   background-color: #e9e9e9;
   transform: scale(1.1);
+}
+
+/* Float menus */
+.FloatMenu{
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  width: 20vw;
+  height: 15vh;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  position: absolute;
+  z-index: 200;
+  background-color: white;
+  border: solid 1px #e9e9e9;
+  padding: 0;
+  text-align: center;
+  left: 0; 
+  right: 0; 
+  top: 0;
+  bottom: 0;
+  margin-left: auto; 
+  margin-right: auto; 
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.ButtonSaveTemplate > button{
+  width: 50%;
+  background: transparent;
+  border: none;
+  transition: all 0.3s;
+}
+
+.ButtonSaveTemplate > button:hover{
+  background-color: #e9e9e9;
+  border-radius: 3px;
+}
+
+/* menu de analiticas */
+.analytics{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-content: center;
+  width: fit-content;
+  position: absolute;
+  left: 10px;
+  top: 70px;
+  margin-top: 5px;
+  margin-left: 5px;
+  transition: all 0.3s;
+}
+
+.data-show{
+  font-size: 12pt;
+  font-weight: bold;
+  color: #969696;
+  transition: all 0.3s;
+}
+
+.data-show:hover{
+  color: #252525;
 }

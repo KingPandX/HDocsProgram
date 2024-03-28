@@ -30,16 +30,43 @@ import * as monaco from 'monaco-editor';
 import HTMLWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
 import CSSWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker';
 
+
 // Obtener elementos para el manejo del contenido
 const Pages = document.getElementById('pages')
 const CSSContent = document.getElementById('CSSContent')
 
-let AllPages = document.querySelectorAll('.page')
 let PageIndex : number = null
 
-let Templates = [
-	'<h1>Titulo</h1>', '<h1>Titulo</h1><h2>Subtitulo</h2>'
+//Templates variables
+const TemplateModal = document.createElement('div')
+TemplateModal.classList.add('FloatMenu')
+TemplateModal.id = 'TemplateModal'
+TemplateModal.innerHTML = `
+	<div class="ModalContent">
+	<h2>Nombre de la plantilla</h2>
+	<input type="text" id="SaveTemplate-Input">
+	<div class="ButtonSaveTemplate"><button id="SaveTemplateCancel-Button">Cancelar</button><button id="SaveTemplate-Button">Guardar</button></div>
+	</div>
+`
+
+declare global {
+	type Template = {
+		name: string,
+		content: string
+	}
+
+	interface Window {
+		API: {
+			Templates: Template[],
+			saveTemplateFile : (templates: Template[]) => void
+		}
+	}
+}
+
+let Templates : Template[] = [
 ]
+
+Templates = [...window.API.Templates]
 
 // Iniciar el contenido
 interface Files {
@@ -49,7 +76,7 @@ interface Files {
 	directory: string
 }
 
-let InPageTool = document.createElement('div')
+const InPageTool = document.createElement('div')
 InPageTool.id = 'InPageTool'
 InPageTool.innerHTML = `
 	<a id="DeletePage"><span class="material-symbols-outlined">
@@ -66,7 +93,9 @@ InPageTool.innerHTML = `
 type Page = {
 	content: string,
 	index: number,
-	model: any
+	model: monaco.editor.ITextModel,
+	element: HTMLDivElement,
+	contentElement: HTMLDivElement
 }
 
 const file : Files = {
@@ -84,29 +113,46 @@ function AddPage(template?: string){
 		content: template || '',
 		index: file.content.length,
 		model: monaco.editor.createModel(template || '', 'html'),
+		element: document.createElement('div'),
+		contentElement: document.createElement('div')
 	}
 	file.content.push(VPage)
 
 	// Crear el elemento en el DOM
-	const Page = document.createElement('div')
+	const Page = VPage.element
+	const Content = VPage.contentElement
+	Content.innerHTML = VPage.content
 	Page.classList.add('page')
-	Page.innerHTML = `
-		<div class="Content">${VPage.content}</div>
-	`
+	Content.classList.add('Content')
+	Page.appendChild(Content)
 	Pages.appendChild(Page)
 	Page.addEventListener('click', () => {
-		if (PageIndex !== null) {
-			AllPages[PageIndex].classList.remove('Pactive')
-		}
-		console.log('Desactivar pagina')
-		Page.classList.add('Pactive')
-		PageIndex = VPage.index
-		HTML.setModel(VPage.model)
-		if (AllPages[PageIndex].querySelector('#InPageTool') === null) {
-			AllPages[PageIndex].appendChild(InPageTool)
-			InPageTool.style.display = 'block'
-		}
+			//if (PageIndex === VPage.index) return
+			if (PageIndex !== null && file.content[PageIndex] !== undefined) file.content[PageIndex].element.classList.remove('Pactive')
+			Page.classList.add('Pactive')
+			PageIndex = VPage.index
+			HTML.setModel(VPage.model)
+			if (file.content[PageIndex].element.querySelector('#InPageTool') === null) {
+				file.content[PageIndex].element.appendChild(InPageTool)
+				InPageTool.style.display = 'block'
+			}
 	})
+	Page.addEventListener('dblclick', (e) => {
+		const container = document.getElementById('ContainerEditor')
+    if (container.classList.contains('EditorOpen')) {
+        container.classList.remove('EditorOpen')
+        container.classList.add('EditorClose')
+    }
+    else {
+        container.classList.remove('EditorClose')
+        container.classList.add('EditorOpen')
+		if (e.ctrlKey){
+			CSS.focus()
+		}
+		else HTML.focus()
+    }
+	})
+		
 	UpdatePageList()
 }
 
@@ -114,18 +160,55 @@ function UpdatePageList(){
 	file.content.forEach((page, index) => {
 		page.index = index
 	})
-	AllPages = document.querySelectorAll('.page')
+
+	type blazeCounterElement = HTMLElement & {
+		update: (count: number) => void
+	}
+	const PageCounter : blazeCounterElement = document.getElementById('PageCount') as blazeCounterElement
+	PageCounter.update(file.content.length)
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+	// Escuchar cuando el editor termine una transicion
+	document.getElementById('ContainerEditor').addEventListener('transitionend', () => {
+        HTML.layout();
+        CSS.layout();
+    })
+
 	// Crear la primera pagina
 	AddPage()
 
 	// Cargar CSS
 	CSS.setValue(file.css)
 
+	// Template menu
+	LoadTemplate()
+	document.querySelector('body').appendChild(TemplateModal)
+	TemplateModal.style.display = 'none'
+	document.getElementById('SaveTemplate-Button').addEventListener('click', () => {
+		const TemplateName = document.getElementById('SaveTemplate-Input') as HTMLInputElement
+		const template : Template = {
+			name: TemplateName.value,
+			content: HTML.getValue()
+		}
+		if (TemplateName.value === '') return
+		Templates.push(template)
+		LoadTemplate()
+		TemplateName.value = ''
+		TemplateModal.style.display = 'none'
+		window.API.saveTemplateFile(Templates)
+	})
+	document.getElementById('SaveTemplateCancel-Button').addEventListener('click', () => {
+		TemplateModal.style.display = 'none'
+	})
+
+	// Agregar el panel de herramientas
 	document.querySelector('body').appendChild(InPageTool)
 	InPageTool.style.display = 'none'
+
+	document.getElementById('SaveTemplate').addEventListener('click', () => {
+		SaveTemplate()
+	})
 
 	document.getElementById('DeletePage').addEventListener('click', () => {
 		DeletePage()
@@ -134,18 +217,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Crear el editor
 self.MonacoEnvironment = {
-	getWorker: function (workerId, label) {
-		const getWorkerModule = (moduleUrl :string, label :string) => {
-			return new Worker(self.MonacoEnvironment.getWorkerUrl(moduleUrl, label), {
-				name: label,
-				type: 'module'
-			});
-		};
+	getWorker: function (moduleId, label) {
 		switch (label) {
 			case 'css':
 				return CSSWorker();
 			case 'html':
 				return HTMLWorker();
+			default:
+				throw new Error('Invalid label: ' + label);
 		}
 	}
 };
@@ -160,17 +239,13 @@ const CSS = monaco.editor.create(document.getElementById('CSSEditor'), {
     theme: 'vs-dark'
 });
 
-window.onresize = function(event) {
-    HTML.layout();
-    CSS.layout();
-    };
+window.onresize = function() {
+	HTML.layout();
+	CSS.layout();
+};
 
 document.getElementById('HTMLButton').addEventListener('click', () => {
     const container = document.getElementById('ContainerEditor')
-    container.addEventListener('transitionend', () => {
-        HTML.layout();
-        CSS.layout();
-    })
     if (container.classList.contains('EditorOpen')) {
         container.classList.remove('EditorOpen')
         container.classList.add('EditorClose')
@@ -178,6 +253,7 @@ document.getElementById('HTMLButton').addEventListener('click', () => {
     else {
         container.classList.remove('EditorClose')
         container.classList.add('EditorOpen')
+		HTML.focus()
     }
 })
 
@@ -190,7 +266,7 @@ document.getElementById('HTMLButton').addEventListener('click', () => {
 
 	HTML.onDidChangeModelContent(() => {
 		file.content[PageIndex].content = HTML.getValue()
-		document.querySelectorAll('.Content')[PageIndex].innerHTML = file.content[PageIndex].content
+		file.content[PageIndex].contentElement.innerHTML = file.content[PageIndex].content
 	})
 
 /* Sistema para agregar paginas */
@@ -203,20 +279,63 @@ AddPageButton.addEventListener('click', () => {
 	if (TemplateSelectorValue === '-1') {
 		AddPage()
 	}else{
-		AddPage(Templates[parseInt(TemplateSelectorValue)])
+		AddPage(Templates[parseInt(TemplateSelectorValue)].content)
 	}
 })
 
 /* Sistema para eliminar paginas */
 
 function DeletePage(){
+	// Eliminar la pagina en el DOM
+	const DeleteContent = file.content[PageIndex].element
+	DeleteContent.classList.remove('Pactive')
+	DeleteContent.remove()
+
 	// Eliminar la pagina
 	file.content.splice(PageIndex, 1)
 
-	// Eliminar la pagina en el DOM
-	AllPages[PageIndex].remove()
+	// Actualizar el indice
 	PageIndex = null
-
-	// Actualizar el contenido
 	UpdatePageList()
 }
+
+/* Sistema para agregar un nuevo template */
+
+function SaveTemplate(){
+	TemplateModal.style.display = 'block'
+}
+
+function LoadTemplate(){
+	const TemplateSelector : HTMLSelectElement = document.getElementById('TemplateSelector') as HTMLSelectElement
+	TemplateSelector.innerHTML = '<option value="-1">Plantilla en blanco</option>'
+	Templates.forEach((template, index) => {
+		const Option = document.createElement('option')
+		Option.value = index.toString()
+		Option.innerHTML = template.name
+		TemplateSelector.appendChild(Option)
+	})
+}
+
+// Shortcuts
+document.addEventListener('keydown', (e: KeyboardEvent) => {
+	if (e.key === 'Escape') {
+		console.log('Escape')
+		if (TemplateModal.style.display === 'block') {
+			TemplateModal.style.display = 'none'
+			return
+		}
+		if (document.getElementById('ContainerEditor').classList.contains('EditorOpen')) {
+			document.getElementById('ContainerEditor').classList.remove('EditorOpen')
+			document.getElementById('ContainerEditor').classList.add('EditorClose')
+			return
+		}
+	}
+	})
+
+
+// Pegar texto
+document.addEventListener('paste', (e: ClipboardEvent) => {
+	const text = e.clipboardData.getData('text/html')
+	const prevData = HTML.getValue()
+	HTML.setValue(prevData + '\n' + text)
+})

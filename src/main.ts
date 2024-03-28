@@ -1,5 +1,6 @@
-import { app, BrowserWindow } from 'electron';
-import path from 'path';
+import { app, BrowserWindow, ipcMain } from 'electron';
+import path from 'node:path';
+import fs from 'node:fs';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -51,3 +52,36 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
+// Load the template file
+async function loadTemplateFile() {
+  const filePath = '/home/ghost/Documents/js/my-app/Templates.json';
+  try {
+    const data = await fs.promises.readFile(filePath, 'utf-8');
+    return JSON.parse(data).Templates;
+  } catch (error) {
+    console.error('Error reading file:', error);
+    return [];
+  }
+}
+
+// Save the template file
+async function saveTemplateFile(templates : Template[]) {
+  const filePath = '/home/ghost/Documents/js/my-app/Templates.json';
+  try {
+    await fs.promises.writeFile(filePath, JSON.stringify({ Templates: templates }, null, 2));
+  }
+  catch (error) {
+    console.error('Error writing file:', error);
+  }
+}
+
+// Handle ipc events
+
+ipcMain.handle('load-templates', async () => {
+  return await loadTemplateFile();
+})
+
+ipcMain.handle('save-template', async (event, template: Template[]) => {
+  await saveTemplateFile(template);
+})

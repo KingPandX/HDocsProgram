@@ -21,9 +21,6 @@
         <div class="TemplateSelect">
           <label for="PageOption">Plantilla:</label>
           <select id="TemplateSelector" name="PageOption">
-            <option value="-1">Ninguna</option>
-            <option value="0">Pagina con titulo</option>
-            <option value="1">Pagina con titulo y subtitulo</option>
           </select>
         </div>
       </div>
@@ -56,8 +53,22 @@
       }
     </style>
     <div id="pages">
-    
+  
     </div>
+    <div class="analytics">
+      <div class="c-tooltip c-tooltip--right" aria-label="Numero de paginas">
+        <blaze-counter
+          id="PageCount"
+          class="data-show"
+          auto-start
+          start-value="1"
+          end-value="1"
+          duration="0.3"
+          decimals="0"
+          delay="0">
+          <span slot="prefix">paginas: </span>
+        </blaze-counter>
+      </div>
     </div>
 
     <div class="DownToolBox">
